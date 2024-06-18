@@ -1,0 +1,40 @@
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+from sklearn.metrics import accuracy_score
+from collections import Counter
+
+
+# Load the dataset
+iris = load_iris()
+X = iris.data  # Features
+y = iris.target  # Target variable
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+def euclidean_distance(x1, x2):
+    return np.sqrt(np.sum((x1 - x2)**2))
+
+def predict(X_train, y_train, x_test, k):
+    distances = [euclidean_distance(x_test, x) for x in X_train]
+    k_indices = np.argsort(distances)[:k]
+    k_nearest_labels = [y_train[i] for i in k_indices]
+    most_common = Counter(k_nearest_labels).most_common(1)
+    return most_common[0][0]
+
+def k_nearest_neighbors(X_train, y_train, X_test, k):
+    predictions = [predict(X_train, y_train, x_test, k) for x_test in X_test]
+    return np.array(predictions)
+
+
+# Define the value of k
+k = 3
+
+# Predict
+y_pred = k_nearest_neighbors(X_train, y_train, X_test, k)
+
+# Evaluate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy:.2f}')
